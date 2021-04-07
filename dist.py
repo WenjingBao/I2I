@@ -38,7 +38,11 @@ def dist(x, y) -> float:
                         except:
                             continue
                 dist /= (2 * xnum + 1) * (2 * ynum + 1)
-                return dist
+                # print(dist)
+                intrin = depth.profile.as_video_stream_profile().intrinsics
+                depth_point = rs.rs2_deproject_pixel_to_point(intrin, [x, y], dist)
+                # x from left to right, y from top to bottom, z from near to far
+                return depth_point
         """
         # Using multiple frames to eliminate error
         # number of frames to get the avg distance from, will change the time for the program to run

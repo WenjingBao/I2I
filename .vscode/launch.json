@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "args": [
-                "999",
+                "960",
                 "540",
                 "1080"
             ],
