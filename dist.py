@@ -13,8 +13,36 @@ import time
 
 def dist(x, y) -> float:
     try:
+
+        # Using multiple pixels near the coordinate in same frame to eliminate the error
+        # number of pixels to consider in each axis from the coordinate
+        xnum = 2
+        ynum = 2
+
+        while True:
+            if x in range(rx) and y in range(ry):
+                dist = float(0)
+                frames = pipeline.wait_for_frames()
+                depth = frames.get_depth_frame()
+                if not depth:
+                    continue
+
+                for i in range(x - xnum, x + xnum + 1):
+                    for j in range(y - ynum, y + ynum + 1):
+                        try:
+                            # This call waits until a new coherent set of frames is available on a device
+                            # Calls to get_frame_data(...) and get_frame_timestamp(...) on a device will return stable values until wait_for_frames(...) is called
+                            dist += depth.get_distance(i, j)
+                            # print(i)
+                            # print(j)
+                        except:
+                            continue
+                dist /= (2 * xnum + 1) * (2 * ynum + 1)
+                return dist
+        """
+        # Using multiple frames to eliminate error
         # number of frames to get the avg distance from, will change the time for the program to run
-        framenum = 5
+        framenum = 3
 
         while True:
             if x in range(rx) and y in range(ry):
@@ -33,6 +61,7 @@ def dist(x, y) -> float:
                         continue
                 dist /= framenum
                 return dist
+        """
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -48,7 +77,7 @@ if __name__ == "__main__":
     # resolution and fps of depth cam
     rx = 1280  # 640
     ry = 720  # 360
-    fps = 15  # 30
+    fps = 30  # 30
 
     if res == 1080:
         x *= rx / 1920
@@ -70,8 +99,8 @@ if __name__ == "__main__":
     # Start streaming
     pipeline.start(config)
 
-    # start_time = time.time()
+    start_time = time.time()
     a = dist(x, y)
-    # print("%s sec" % (time.time() - start_time))
+    print("%s sec" % (time.time() - start_time))
     print(a)
 
