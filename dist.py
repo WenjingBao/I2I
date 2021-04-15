@@ -13,11 +13,11 @@ import time
 
 def dist(x, y) -> float:
     try:
-
         # Using multiple pixels near the coordinate in same frame to eliminate the error
         # number of pixels to consider in each axis from the coordinate
         xnum = 2
         ynum = 2
+        count = 0
 
         while True:
             if x in range(rx) and y in range(ry):
@@ -32,12 +32,15 @@ def dist(x, y) -> float:
                         try:
                             # This call waits until a new coherent set of frames is available on a device
                             # Calls to get_frame_data(...) and get_frame_timestamp(...) on a device will return stable values until wait_for_frames(...) is called
-                            dist += depth.get_distance(i, j)
+                            temp = depth.get_distance(i, j)
+                            if temp != 0:
+                                dist += temp
+                                count += 1
                             # print(i)
                             # print(j)
                         except:
                             continue
-                dist /= (2 * xnum + 1) * (2 * ynum + 1)
+                dist /= count
                 # print(dist)
                 intrin = depth.profile.as_video_stream_profile().intrinsics
                 depth_point = rs.rs2_deproject_pixel_to_point(intrin, [x, y], dist)

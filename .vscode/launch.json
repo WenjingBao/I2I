@@ -10,8 +10,8 @@
             "request": "launch",
             "program": "${file}",
             "args": [
-                "960",
-                "540",
+                "870",
+                "705",
                 "1080"
             ],
             "console": "integratedTerminal"
