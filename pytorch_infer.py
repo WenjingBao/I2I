@@ -158,9 +158,12 @@ def inference(
             if class_id == 0:
                 color = (0, 255, 0)
             else:
-                if math.sqrt(coords[2] ** 2 + coords[0] ** 2) <= 4.5:
-                    color = (255, 0, 0)
-                    winsound.Beep(440, 250)
+                if type(coords) != float:
+                    if math.sqrt(coords[2] ** 2 + coords[0] ** 2) <= 4.5:
+                        color = (255, 0, 0)
+                        winsound.Beep(440, 250)
+                    else:
+                        color = (0, 255, 0)
                 else:
                     color = (0, 255, 0)
             cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, 2)
@@ -260,6 +263,6 @@ if __name__ == "__main__":
     else:
         video_path = args.video_path
         if args.video_path == "0":
-            video_path = 0
+            video_path = 2
         run_on_video(video_path, "", conf_thresh=0.8)
 

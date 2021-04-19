@@ -11,7 +11,7 @@ import time
 # function should return the distance or -1 and print the exception if failed
 
 
-def dist(x, y) -> float:
+def dist(x, y):
     try:
         # Using multiple pixels near the coordinate in same frame to eliminate the error
         # number of pixels to consider in each axis from the coordinate
@@ -45,6 +45,7 @@ def dist(x, y) -> float:
                 intrin = depth.profile.as_video_stream_profile().intrinsics
                 depth_point = rs.rs2_deproject_pixel_to_point(intrin, [x, y], dist)
                 # x from left to right, y from top to bottom, z from near to far
+                print(type(depth_point))
                 return depth_point
         """
         # Using multiple frames to eliminate error
@@ -110,4 +111,5 @@ if __name__ == "__main__":
     a = dist(x, y)
     print("%s sec" % (time.time() - start_time))
     print(a)
+    print(type(a))
 
