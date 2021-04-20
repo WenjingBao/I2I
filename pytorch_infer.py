@@ -73,7 +73,7 @@ def dist(x, y) -> float:
                 distance /= count
                 """
                 distance = depth.get_distance(x, y)
-                # print(distance)
+                #print(distance)
                 intrin = depth.profile.as_video_stream_profile().intrinsics
                 depth_point = rs.rs2_deproject_pixel_to_point(intrin, [x, y], distance)
                 # x from left to right, y from top to bottom, z from near to far
@@ -161,13 +161,15 @@ def inference(
         if draw_result:
             x = rx - int((xmin + xmax) / 2.0 * float(rx) / float(width))
             y = ry - int((ymin + ymax) / 2.0 * float(ry) / float(height))
-            # print(x)
-            # print(y)
+            print(width)
+            print(height)
             coords = dist(x, y)
             # print(coords)
             if class_id == 0:
                 color = (0, 255, 0)
             else:
+                #color = (255, 0, 0)
+                #winsound.Beep(440, 250)
                 if type(coords) != float:
                     coords[0] *= -1
                     coords[1] *= -1
@@ -176,7 +178,7 @@ def inference(
                         angle = math.atan(coords[0] / coords[2]) / math.pi * 180
                     else:
                         angle = 0.0
-                    print("Angle is " + str(angle) + " degree", end="\r")
+                    # print("Angle is " + str(angle) + " degree")
 
                     if (
                         math.sqrt(coords[0] ** 2 + coords[1] ** 2 + coords[2] ** 2)
@@ -188,6 +190,7 @@ def inference(
                         color = (0, 255, 0)
                 else:
                     color = (0, 255, 0)
+            
             cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, 2)
             cv2.putText(
                 image,
@@ -206,6 +209,9 @@ def inference(
 
 def run_on_video(video_path, output_video_name, conf_thresh):
     cap = cv2.VideoCapture(video_path)
+    if cap.isOpened():
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 4096)
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     fps = cap.get(cv2.CAP_PROP_FPS)
