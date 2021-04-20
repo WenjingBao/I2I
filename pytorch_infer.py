@@ -175,7 +175,7 @@ def inference(
                     if coords[2] != 0:
                         angle = math.atan(coords[0] / coords[2]) / math.pi * 180
                     else:
-                        angle = 0
+                        angle = 0.0
                     print("Angle is " + str(angle) + " degree", end="\r")
 
                     if (
