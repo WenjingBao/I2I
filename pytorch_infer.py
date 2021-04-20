@@ -1,19 +1,24 @@
 # -*- coding:utf-8 -*-
-import cv2
-import time
-import pyrealsense2 as rs
-import sys
-import math
-import winsound
 import argparse
+import math
+import sys
+import time
+import warnings
+import winsound
+
+import cv2
 import numpy as np
+import pyrealsense2 as rs
 from PIL import Image
-from utils.anchor_generator import generate_anchors
-from utils.anchor_decode import decode_bbox
-from utils.nms import single_class_non_max_suppression
+from torch.serialization import SourceChangeWarning
+
 from load_model.pytorch_loader import load_pytorch_model, pytorch_inference
+from utils.anchor_decode import decode_bbox
+from utils.anchor_generator import generate_anchors
+from utils.nms import single_class_non_max_suppression
 
 # model = load_pytorch_model('models/face_mask_detection.pth');
+warnings.filterwarnings("ignore", category=SourceChangeWarning)
 model = load_pytorch_model("models/model360.pth")
 # anchor configuration
 # feature_map_sizes = [[33, 33], [17, 17], [9, 9], [5, 5], [3, 3]]
@@ -68,7 +73,7 @@ def dist(x, y) -> float:
                 distance /= count
                 """
                 distance = depth.get_distance(x, y)
-                print(distance)
+                # print(distance)
                 intrin = depth.profile.as_video_stream_profile().intrinsics
                 depth_point = rs.rs2_deproject_pixel_to_point(intrin, [x, y], distance)
                 # x from left to right, y from top to bottom, z from near to far
@@ -159,14 +164,24 @@ def inference(
             # print(x)
             # print(y)
             coords = dist(x, y)
-            print(coords)
+            # print(coords)
             if class_id == 0:
                 color = (0, 255, 0)
             else:
                 if type(coords) != float:
                     coords[0] *= -1
                     coords[1] *= -1
-                    if math.sqrt(coords[2] ** 2 + coords[0] ** 2) <= 4.5:
+
+                    if coords[2] != 0:
+                        angle = math.atan(coords[0] / coords[2]) / math.pi * 180
+                    else:
+                        angle = 0
+                    print("Angle is " + str(angle) + " degree", end="\r")
+
+                    if (
+                        math.sqrt(coords[0] ** 2 + coords[1] ** 2 + coords[2] ** 2)
+                        <= 4.5
+                    ):
                         color = (255, 0, 0)
                         winsound.Beep(440, 250)
                     else:
@@ -251,6 +266,8 @@ if __name__ == "__main__":
     )
     # parser.add_argument('--hdf5', type=str, help='keras hdf5 file')
     args = parser.parse_args()
+
+    print("Loading...")
 
     # Create a context object. This object owns the handles to all connected realsense devices
     pipeline = rs.pipeline()
