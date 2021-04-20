@@ -30,9 +30,9 @@ anchors_exp = np.expand_dims(anchors, axis=0)
 
 id2class = {0: "Mask", 1: "NoMask"}
 
-rx = 1280  # 640
-ry = 720  # 360
-fps = 30  # 30
+rx = 1280
+ry = 720
+fps = 30
 
 
 def dist(x, y) -> float:
@@ -45,12 +45,13 @@ def dist(x, y) -> float:
 
         while True:
             if x in range(rx) and y in range(ry):
-                dist = float(0)
+                distance = float(0)
                 frames = pipeline.wait_for_frames()
                 depth = frames.get_depth_frame()
                 if not depth:
                     continue
 
+                """
                 for i in range(x - xnum, x + xnum + 1):
                     for j in range(y - ynum, y + ynum + 1):
                         try:
@@ -58,16 +59,18 @@ def dist(x, y) -> float:
                             # Calls to get_frame_data(...) and get_frame_timestamp(...) on a device will return stable values until wait_for_frames(...) is called
                             temp = depth.get_distance(i, j)
                             if temp != 0:
-                                dist += temp
+                                distance += temp
                                 count += 1
                             # print(i)
                             # print(j)
                         except:
                             continue
-                dist /= count
-                # print(dist)
+                distance /= count
+                """
+                distance = depth.get_distance(x, y)
+                print(distance)
                 intrin = depth.profile.as_video_stream_profile().intrinsics
-                depth_point = rs.rs2_deproject_pixel_to_point(intrin, [x, y], dist)
+                depth_point = rs.rs2_deproject_pixel_to_point(intrin, [x, y], distance)
                 # x from left to right, y from top to bottom, z from near to far
                 return depth_point
         """
@@ -151,14 +154,18 @@ def inference(
         ymax = min(int(bbox[3] * height), height)
 
         if draw_result:
-            x = int((xmin + xmax) / 2 * rx / 1920)
-            y = int((ymin + ymax) / 2 * ry / 1080)
+            x = rx - int((xmin + xmax) / 2.0 * float(rx) / float(width))
+            y = ry - int((ymin + ymax) / 2.0 * float(ry) / float(height))
+            # print(x)
+            # print(y)
             coords = dist(x, y)
             print(coords)
             if class_id == 0:
                 color = (0, 255, 0)
             else:
                 if type(coords) != float:
+                    coords[0] *= -1
+                    coords[1] *= -1
                     if math.sqrt(coords[2] ** 2 + coords[0] ** 2) <= 4.5:
                         color = (255, 0, 0)
                         winsound.Beep(440, 250)
@@ -261,8 +268,8 @@ if __name__ == "__main__":
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         inference(img, show_result=True, target_shape=(360, 360))
     else:
-        video_path = args.video_path
-        if args.video_path == "0":
-            video_path = 2
+        video_path = int(args.video_path) - int("0")
+        # if args.video_path == "0":
+        #    video_path = 0
         run_on_video(video_path, "", conf_thresh=0.8)
 
