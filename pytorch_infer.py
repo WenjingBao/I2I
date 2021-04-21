@@ -1,3 +1,5 @@
+# run with: 
+# python pytorch_infer.py --img-mode 0 --video-path 2
 # -*- coding:utf-8 -*-
 import argparse
 import math
@@ -56,7 +58,6 @@ def dist(x, y) -> float:
                 if not depth:
                     continue
 
-                """
                 for i in range(x - xnum, x + xnum + 1):
                     for j in range(y - ynum, y + ynum + 1):
                         try:
@@ -70,10 +71,11 @@ def dist(x, y) -> float:
                             # print(j)
                         except:
                             continue
-                distance /= count
-                """
-                distance = depth.get_distance(x, y)
-                #print(distance)
+                if count:
+                    distance /= count
+                
+                #distance = depth.get_distance(x, y)
+                # print(distance)
                 intrin = depth.profile.as_video_stream_profile().intrinsics
                 depth_point = rs.rs2_deproject_pixel_to_point(intrin, [x, y], distance)
                 # x from left to right, y from top to bottom, z from near to far
@@ -159,26 +161,33 @@ def inference(
         ymax = min(int(bbox[3] * height), height)
 
         if draw_result:
-            x = rx - int((xmin + xmax) / 2.0 * float(rx) / float(width))
-            y = ry - int((ymin + ymax) / 2.0 * float(ry) / float(height))
-            print(width)
-            print(height)
-            coords = dist(x, y)
-            # print(coords)
             if class_id == 0:
                 color = (0, 255, 0)
             else:
                 #color = (255, 0, 0)
                 #winsound.Beep(440, 250)
+                x = rx - int((xmin + xmax) / 2.0 * float(rx) / float(width))
+                y = ry - int((ymin + ymax) / 2.0 * float(ry) / float(height) + 10)
+                # print(width)
+                # print(height)
+                coords = dist(x, y)
+                # print(coords)
                 if type(coords) != float:
                     coords[0] *= -1
                     coords[1] *= -1
+                    distance = math.sqrt(coords[0] ** 2 + coords[1] ** 2 + coords[2] ** 2)
 
                     if coords[2] != 0:
                         angle = math.atan(coords[0] / coords[2]) / math.pi * 180
                     else:
                         angle = 0.0
-                    # print("Angle is " + str(angle) + " degree")
+                    #print("Angle is " + str(angle) + " degree")
+                    if angle < -15:
+                        print("Object is "+ str(round(distance, 3)) +" m away; Angle is " + str(round(angle, 3)) + " degree; " +" Left", end = "\r")
+                    elif angle < 15:
+                        print("Object is "+ str(round(distance, 3)) +" m away; Angle is " + str(round(angle, 3)) + " degree; " +"Front", end = "\r")
+                    else:
+                        print("Object is "+ str(round(distance, 3)) +" m away; Angle is " + str(round(angle, 3)) + " degree; " +"Right", end = "\r")
 
                     if (
                         math.sqrt(coords[0] ** 2 + coords[1] ** 2 + coords[2] ** 2)
@@ -211,7 +220,7 @@ def run_on_video(video_path, output_video_name, conf_thresh):
     cap = cv2.VideoCapture(video_path)
     if cap.isOpened():
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 4096)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -237,13 +246,15 @@ def run_on_video(video_path, output_video_name, conf_thresh):
                 draw_result=True,
                 show_result=False,
             )
-            cv2.imshow("image", img_raw[:, :, ::-1])
+            imS = cv2.resize(img_raw, (640, 360))
+            cv2.imshow("image", imS[:, :, ::-1])
             cv2.waitKey(1)
             inference_stamp = time.time()
             # writer.write(img_raw)
             write_frame_stamp = time.time()
             idx += 1
-            print("%d of %d" % (idx, total_frames))
+            #print("%d of %d" % (idx, total_frames))
+            """
             print(
                 "read_frame:%f, infer time:%f, write time:%f"
                 % (
@@ -252,6 +263,7 @@ def run_on_video(video_path, output_video_name, conf_thresh):
                     write_frame_stamp - inference_stamp,
                 )
             )
+            """
     # writer.release()
 
 
