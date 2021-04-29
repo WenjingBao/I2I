@@ -1,3 +1,4 @@
 .vscode/settings.json
-load_model/__pycache__/
-utils/__pycache__/
+load_model/__pycache__/*.pyc
+utils/__pycache__/*.pyc
+

@@ -1,4 +1,4 @@
-# run with: 
+# run with:
 # python pytorch_infer.py --img-mode 0 --video-path 2
 # -*- coding:utf-8 -*-
 import argparse
@@ -73,8 +73,8 @@ def dist(x, y) -> float:
                             continue
                 if count:
                     distance /= count
-                
-                #distance = depth.get_distance(x, y)
+
+                # distance = depth.get_distance(x, y)
                 # print(distance)
                 intrin = depth.profile.as_video_stream_profile().intrinsics
                 depth_point = rs.rs2_deproject_pixel_to_point(intrin, [x, y], distance)
@@ -164,8 +164,8 @@ def inference(
             if class_id == 0:
                 color = (0, 255, 0)
             else:
-                #color = (255, 0, 0)
-                #winsound.Beep(440, 250)
+                # color = (255, 0, 0)
+                # winsound.Beep(440, 250)
                 x = rx - int((xmin + xmax) / 2.0 * float(rx) / float(width))
                 y = ry - int((ymin + ymax) / 2.0 * float(ry) / float(height) + 10)
                 # print(width)
@@ -175,19 +175,42 @@ def inference(
                 if type(coords) != float:
                     coords[0] *= -1
                     coords[1] *= -1
-                    distance = math.sqrt(coords[0] ** 2 + coords[1] ** 2 + coords[2] ** 2)
+                    distance = math.sqrt(
+                        coords[0] ** 2 + coords[1] ** 2 + coords[2] ** 2
+                    )
 
                     if coords[2] != 0:
                         angle = math.atan(coords[0] / coords[2]) / math.pi * 180
                     else:
                         angle = 0.0
-                    #print("Angle is " + str(angle) + " degree")
+                    # print("Angle is " + str(angle) + " degree")
                     if angle < -15:
-                        print("Object is "+ str(round(distance, 3)) +" m away; Angle is " + str(round(angle, 3)) + " degree; " +" Left", end = "\r")
+                        print(
+                            "Object is "
+                            + str(round(distance, 3))
+                            + " m away; Angle is "
+                            + str(round(angle, 3))
+                            + " degree; "
+                            + " Left"
+                        )  # , end = "\r")
                     elif angle < 15:
-                        print("Object is "+ str(round(distance, 3)) +" m away; Angle is " + str(round(angle, 3)) + " degree; " +"Front", end = "\r")
+                        print(
+                            "Object is "
+                            + str(round(distance, 3))
+                            + " m away; Angle is "
+                            + str(round(angle, 3))
+                            + " degree; "
+                            + "Front"
+                        )  # , end = "\r")
                     else:
-                        print("Object is "+ str(round(distance, 3)) +" m away; Angle is " + str(round(angle, 3)) + " degree; " +"Right", end = "\r")
+                        print(
+                            "Object is "
+                            + str(round(distance, 3))
+                            + " m away; Angle is "
+                            + str(round(angle, 3))
+                            + " degree; "
+                            + "Right"
+                        )  # , end = "\r")
 
                     if (
                         math.sqrt(coords[0] ** 2 + coords[1] ** 2 + coords[2] ** 2)
@@ -199,7 +222,7 @@ def inference(
                         color = (0, 255, 0)
                 else:
                     color = (0, 255, 0)
-            
+
             cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, 2)
             cv2.putText(
                 image,
@@ -253,7 +276,7 @@ def run_on_video(video_path, output_video_name, conf_thresh):
             # writer.write(img_raw)
             write_frame_stamp = time.time()
             idx += 1
-            #print("%d of %d" % (idx, total_frames))
+            # print("%d of %d" % (idx, total_frames))
             """
             print(
                 "read_frame:%f, infer time:%f, write time:%f"
