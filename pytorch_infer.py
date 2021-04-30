@@ -329,5 +329,5 @@ if __name__ == "__main__":
         video_path = int(args.video_path) - int("0")
         # if args.video_path == "0":
         #    video_path = 0
-        run_on_video(video_path, "", conf_thresh=0.8)
+        run_on_video(video_path, "", conf_thresh=0.9)
 
