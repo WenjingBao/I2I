@@ -244,22 +244,21 @@ def run_on_video(video_path, output_video_name, conf_thresh):
     if cap.isOpened():
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
-    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    fourcc = cv2.VideoWriter_fourcc(*"XVID")
+    # height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    # width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    # fps = cap.get(cv2.CAP_PROP_FPS)
+    # fourcc = cv2.VideoWriter_fourcc(*"XVID")
     # writer = cv2.VideoWriter(output_video_name, fourcc, int(fps), (int(width), int(height)))
-    total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+    # total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     if not cap.isOpened():
         raise ValueError("Video open failed.")
-        return
     status = True
     idx = 0
     while status:
-        start_stamp = time.time()
+        # start_stamp = time.time()
         status, img_raw = cap.read()
         img_raw = cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)
-        read_frame_stamp = time.time()
+        # read_frame_stamp = time.time()
         if status:
             inference(
                 img_raw,
@@ -272,9 +271,9 @@ def run_on_video(video_path, output_video_name, conf_thresh):
             imS = cv2.resize(img_raw, (640, 360))
             cv2.imshow("image", imS[:, :, ::-1])
             cv2.waitKey(1)
-            inference_stamp = time.time()
+            # inference_stamp = time.time()
             # writer.write(img_raw)
-            write_frame_stamp = time.time()
+            # write_frame_stamp = time.time()
             idx += 1
             # print("%d of %d" % (idx, total_frames))
             """
